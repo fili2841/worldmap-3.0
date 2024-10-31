@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Map Overpopulation Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #0d1b2a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        #map-container {
+            position: relative;
+            width: 800px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #world-map {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            visibility: visible;
+            display: block;
+        }
+
+        /* Dot Styling */
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(255, 0, 0, 0.5);
+            visibility: hidden;
+            cursor: pointer;
+        }
+
+        /* Tooltip Styling */
+        .tooltip {
+            position: absolute;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            display: none;
+        }
+
+        /* Overlay Text */
+        #overlay {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(13, 27, 42, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #population-display,
+        #max-population-display,
+        #max-year-display {
+            margin: 5px 0;
+            font-size: 1.2rem;
+        }
+
+        #slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #population-slider {
+            width: 80%;
+            margin-top: 10px;
+        }
+
+        /* Add styles for continent zones */
+        .zone {
+            position: absolute;
+            border: 2px solid rgba(255, 0, 0, 0.5); /* Red border for visibility */
+            opacity: 0.3; /* Semi-transparent */
+            transition: opacity 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+        }
+
+        .zone:hover {
+            opacity: 0.7; /* Change opacity on hover */
+            background-color: rgba(255, 0, 0, 0.2); /* Optional: Add a background color on hover */
+        }
+
+        /* Population Details Box */
+        #details-box {
+            position: absolute;
+            top: 10%;
+            right: 5%;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+            z-index: 10; /* Ensure it appears above other elements */
+            color: #000; /* Text color */
+        }
+
+        /* Specific zone styles */
+        #zone-africa {
+            top: 30%; /* Adjust based on your map */
+            left: 40%; /* Adjust based on your map */
+            width: 25%; /* Adjust based on your map */
+            height: 40%; /* Adjust based on your map */
+        }
+        #zone-europe {
+            top: 10%; /* Adjust based on your map */
+            left: 45%; /* Adjust based on your map */
+            width: 20%; /* Adjust based on your map */
+            height: 20%; /* Adjust based on your map */
+        }
+        #zone-asia {
+            top: 6%; /* Adjust based on your map */
+            left: 65%; /* Adjust based on your map */
+            width: 40%; /* Adjust based on your map */
+            height: 40%; /* Adjust based on your map */
+        }
+        #zone-north-america {
+            top: 10%; /* Adjust based on your map */
+            left: 5%; /* Adjust based on your map */
+            width: 25%; /* Adjust based on your map */
+            height: 34%; /* Adjust based on your map */
+        }
+        #zone-south-america {
+            top: 40%; /* Adjust based on your map */
+            left: 26%; /* Adjust based on your map */
+            width: 15%; /* Adjust based on your map */
+            height: 40%; /* Adjust based on your map */
+        }
+        #zone-australia {
+            top: 55%; /* Position remains the same */
+            left: 79%; /* Position remains the same */
+            width: 17%; /* Adjusted size */
+            height: 20%; /* Adjusted size */
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <h1>World Overpopulation Visualization</h1>
+        <div id="population-display">Current Population: 0</div>
+        <div id="max-population-display">Maximum Capacity: 20,000,000,000</div>
+        <div id="max-year-display">Predicted Year of Overpopulation: 2100</div>
+    </div>
+
+    <div id="map-container">
+        <!-- Background Map Image -->
+        <img src="world-map.jpg" alt="World Map" id="world-map">
+
+        <!-- Dots for high-population areas with IDs for JavaScript targeting -->
+        <div class="dot" id="dot-china" style="top: 30%; left: 72%;"></div>
+        <div class="dot" id="dot-india" style="top: 35%; left: 70%;"></div>
+        <div class="dot" id="dot-europe" style="top: 20%; left: 52%;"></div>
+        <div class="dot" id="dot-usa" style="top: 25%; left: 28%;"></div>
+
+        <!-- Zones for each continent -->
+        <div class="zone" id="zone-africa" data-population="3,400,000,000"></div>
+        <div class="zone" id="zone-europe" data-population="2,000,000,000"></div>
+        <div class="zone" id="zone-asia" data-population="12,000,000,000"></div>
+        <div class="zone" id="zone-north-america" data-population="1,600,000,000"></div>
+        <div class="zone" id="zone-south-america" data-population="1,000,000,000"></div>
+        <div class="zone" id="zone-australia" data-population="60,000,000"></div>
+    </div>
+
+    <div id="details-box">
+        <h3>Population Details</h3>
+        <p id="africa-population">Africa: 0</p>
+        <p id="europe-population">Europe: 0</p>
+        <p id="asia-population">Asia: 0</p>
+        <p id="north-america-population">North America: 0</p>
+        <p id="south-america-population">South America: 0</p>
+        <p id="australia-population">Australia: 0</p>
+    </div>
+
+    <div id="slider-container">
+        <label class="slider-label" for="population-slider">Adjust Population</label>
+        <input type="range" id="population-slider" min="0" max="20000000000" step="100000000" value="8000000000">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
